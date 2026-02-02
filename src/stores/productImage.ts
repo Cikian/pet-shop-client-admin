@@ -47,7 +47,7 @@ export const useProductImageStore = defineStore('productImage', () => {
   }
 
   // 根据商品ID获取附图
-  const fetchImagesByProductId = async (productId: number): Promise<ProductImage[]> => {
+  const fetchImagesByProductId = async (productId: string): Promise<ProductImage[]> => {
     loading.value = true
     try {
       const images = await api.productImage.getByProductId(productId) as ProductImage[]
@@ -62,7 +62,7 @@ export const useProductImageStore = defineStore('productImage', () => {
   }
 
   // 获取单个商品附图
-  const fetchProductImage = async (id: number): Promise<ProductImage> => {
+  const fetchProductImage = async (id: string): Promise<ProductImage> => {
     loading.value = true
     try {
       const image = await api.productImage.get(id) as ProductImage
@@ -118,7 +118,7 @@ export const useProductImageStore = defineStore('productImage', () => {
   }
 
   // 删除商品附图
-  const deleteProductImage = async (id: number): Promise<void> => {
+  const deleteProductImage = async (id: string): Promise<void> => {
     loading.value = true
     try {
       await api.productImage.delete(id)

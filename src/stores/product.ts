@@ -47,7 +47,7 @@ export const useProductStore = defineStore('product', () => {
   }
 
   // 获取单个商品
-  const fetchProduct = async (id: number): Promise<Product> => {
+  const fetchProduct = async (id: string): Promise<Product> => {
     loading.value = true
     try {
       const product = await api.goods.get(id) as Product
@@ -105,7 +105,7 @@ export const useProductStore = defineStore('product', () => {
   }
 
   // 删除商品
-  const deleteProduct = async (id: number): Promise<void> => {
+  const deleteProduct = async (id: string): Promise<void> => {
     loading.value = true
     try {
       await api.goods.delete(id)

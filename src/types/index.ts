@@ -1,6 +1,6 @@
 // 基础类型定义
 export interface BaseEntity {
-  id?: number
+  id?: string
   createTime?: Date
   updateTime?: Date
   delFlag?: boolean
@@ -38,7 +38,7 @@ export interface Result<T = any> {
 
 // 用户信息
 export interface User {
-  id: number
+  id: string
   username: string
   realname?: string
   avatar?: string
@@ -71,15 +71,17 @@ export interface Category extends BaseEntity {
 
 // 规格键
 export interface SpecKey extends BaseEntity {
+  id: string
   name: string
   categoryId?: string
   inputType: 'select' | 'text' | 'image'
   sortOrder: number
+  specValueList?: SpecValue[]
 }
 
 // 规格值
 export interface SpecValue extends BaseEntity {
-  specKeyId: number
+  specKeyId: string
   value: string
   image?: string
   sortOrder: number
@@ -87,7 +89,7 @@ export interface SpecValue extends BaseEntity {
 
 // 商品
 export interface Product extends BaseEntity {
-  id?: number
+  id?: string
   name: string
   description: string
   categoryId?: string
@@ -100,8 +102,8 @@ export interface Product extends BaseEntity {
 
 // 商品附图
 export interface ProductImage extends BaseEntity {
-  id?: number
-  productId: number
+  id?: string
+  productId: string
   description?: string
   imgUrl: string
   sortOrder: number
@@ -111,8 +113,8 @@ export interface ProductImage extends BaseEntity {
 
 // SKU
 export interface SKU extends BaseEntity {
-  id?: number
-  productId: number
+  id?: string
+  productId: string
   skuCode: string
   name: string
   price: number
@@ -125,10 +127,10 @@ export interface SKU extends BaseEntity {
 
 // SKU规格关系
 export interface SKUSpecRelation extends BaseEntity {
-  id?: number
-  skuId: number
-  specKeyId: number
-  specValueId: number
+  id?: string
+  skuId: string
+  specKeyId: string
+  specValueId: string
   delFlag?: boolean
 }
 

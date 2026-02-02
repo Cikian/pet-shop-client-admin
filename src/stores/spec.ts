@@ -51,10 +51,10 @@ export const useSpecStore = defineStore('spec', () => {
   }
 
   // 根据商品或SKU ID获取规格键
-  const fetchSpecKeysByProductOrSkuId = async (params: { pId?: number; skuId?: number }): Promise<SpecKey[]> => {
+  const fetchSpecKeysByProductId = async (productId: string): Promise<SpecKey[]> => {
     loading.value = true
     try {
-      const keys = await api.specKey.getByProductOrSkuId(params) as SpecKey[]
+      const keys = await api.specKey.getByProductId(productId) as SpecKey[]
       specKeys.value = keys
       return keys
     } catch (error) {
@@ -93,7 +93,7 @@ export const useSpecStore = defineStore('spec', () => {
   }
 
   // 根据规格键ID获取规格值
-  const fetchSpecValuesBySpecKeyId = async (specKeyId: number): Promise<SpecValue[]> => {
+  const fetchSpecValuesBySpecKeyId = async (specKeyId: string): Promise<SpecValue[]> => {
     loading.value = true
     try {
       const values = await api.specValue.getBySpecKeyId(specKeyId) as SpecValue[]
@@ -135,7 +135,7 @@ export const useSpecStore = defineStore('spec', () => {
   }
 
   // 根据SKU ID获取规格关系
-  const fetchSkuSpecRelationsBySkuId = async (skuId: number): Promise<SKUSpecRelation[]> => {
+  const fetchSkuSpecRelationsBySkuId = async (skuId: string): Promise<SKUSpecRelation[]> => {
     loading.value = true
     try {
       const relations = await api.skuSpec.getBySkuId(skuId) as SKUSpecRelation[]
@@ -191,7 +191,7 @@ export const useSpecStore = defineStore('spec', () => {
   }
 
   // 删除规格键
-  const deleteSpecKey = async (id: number): Promise<void> => {
+  const deleteSpecKey = async (id: string): Promise<void> => {
     loading.value = true
     try {
       await api.specKey.delete(id)
@@ -253,7 +253,7 @@ export const useSpecStore = defineStore('spec', () => {
   }
 
   // 删除规格值
-  const deleteSpecValue = async (id: number): Promise<void> => {
+  const deleteSpecValue = async (id: string): Promise<void> => {
     loading.value = true
     try {
       await api.specValue.delete(id)
@@ -289,7 +289,7 @@ export const useSpecStore = defineStore('spec', () => {
   }
 
   // 删除SKU规格关系
-  const deleteSkuSpecRelation = async (id: number): Promise<void> => {
+  const deleteSkuSpecRelation = async (id: string): Promise<void> => {
     loading.value = true
     try {
       await api.skuSpec.delete(id)
@@ -337,7 +337,7 @@ export const useSpecStore = defineStore('spec', () => {
 
     // 方法
     fetchSpecKeys,
-    fetchSpecKeysByProductOrSkuId,
+    fetchSpecKeysByProductId,
     fetchSpecValues,
     fetchSpecValuesBySpecKeyId,
     fetchSkuSpecRelations,

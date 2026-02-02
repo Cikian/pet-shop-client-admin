@@ -302,7 +302,7 @@ const fetchCategories = async () => {
 }
 
 // 获取分类名称
-const getCategoryName = (categoryId: number): string => {
+const getCategoryName = (categoryId: string): string => {
   const category = categories.value.find(c => c.id === categoryId)
   return category ? category.name : '未知分类'
 }

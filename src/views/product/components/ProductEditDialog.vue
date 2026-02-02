@@ -1,52 +1,52 @@
 <template>
   <el-dialog
-      v-model="dialogVisible"
-      :title="dialogTitle"
-      width="90%"
-      :before-close="handleClose"
-      @close="handleCancel"
+    v-model="dialogVisible"
+    :title="dialogTitle"
+    width="90%"
+    :before-close="handleClose"
+    @close="handleCancel"
   >
     <!-- 标签页 -->
     <el-tabs v-model="activeTab" type="border-card">
       <!-- 基本信息 -->
       <el-tab-pane label="基本信息" name="basic">
         <el-form
-            ref="formRef"
-            :model="formData"
-            :rules="formRules"
-            label-width="120px"
-            class="product-form"
+          ref="formRef"
+          :model="formData"
+          :rules="formRules"
+          label-width="120px"
+          class="product-form"
         >
           <el-form-item label="商品名称" prop="name">
             <el-input v-model="formData.name" placeholder="请输入商品名称"/>
           </el-form-item>
           <el-form-item label="商品描述" prop="description">
             <el-input
-                v-model="formData.description"
-                type="textarea"
-                placeholder="请输入商品描述"
-                rows="4"
+              v-model="formData.description"
+              type="textarea"
+              placeholder="请输入商品描述"
+              rows="4"
             />
           </el-form-item>
           <el-form-item label="商品分类" prop="categoryId">
             <el-select v-model="formData.categoryId" placeholder="请选择商品分类">
               <el-option
-                  v-for="category in categories"
-                  :key="category.id"
-                  :label="category.name"
-                  :value="category.id"
+                v-for="category in categories"
+                :key="category.id"
+                :label="category.name"
+                :value="category.id"
               />
             </el-select>
           </el-form-item>
           <el-form-item label="主图" prop="mainImg">
             <el-upload
-                v-model:file-list="mainImgFileList"
-                class="main-img-upload"
-                action=""
-                :auto-upload="false"
-                :on-change="handleMainImgChange"
-                :on-remove="handleMainImgRemove"
-                list-type="picture-card"
+              v-model:file-list="mainImgFileList"
+              class="main-img-upload"
+              action=""
+              :auto-upload="false"
+              :on-change="handleMainImgChange"
+              :on-remove="handleMainImgRemove"
+              list-type="picture-card"
             >
               <template #default>
                 <el-icon>
@@ -75,12 +75,12 @@
               <div class="custom-upload-container">
                 <!-- 上传按钮 -->
                 <el-upload
-                    class="upload-demo"
-                    action=""
-                    :auto-upload="false"
-                    :on-change="handleImageChange"
-                    :show-file-list="false"
-                    list-type="picture-card"
+                  class="upload-demo"
+                  action=""
+                  :auto-upload="false"
+                  :on-change="handleImageChange"
+                  :show-file-list="false"
+                  list-type="picture-card"
                 >
                   <template #default>
                     <el-icon>
@@ -93,37 +93,37 @@
                 <!-- 图片列表 -->
                 <div class="image-list">
                   <div
-                      v-for="(file) in imageFileList"
-                      :key="file.id || file.uid"
-                      class="image-item"
+                    v-for="(file) in imageFileList"
+                    :key="file.id || file.uid"
+                    class="image-item"
                   >
                     <img :src="file.url" alt="商品图片" class="image-preview"/>
                     <div class="image-actions">
                       <el-input
-                          v-model="file.description"
-                          placeholder="图片描述"
-                          size="small"
-                          class="image-description"
+                        v-model="file.description"
+                        placeholder="图片描述"
+                        size="small"
+                        class="image-description"
                       />
                       <el-input-number
-                          v-model="file.sortOrder"
-                          :min="1"
-                          :max="100"
-                          size="small"
-                          class="image-sort"
-                          placeholder="排序"
+                        v-model="file.sortOrder"
+                        :min="1"
+                        :max="100"
+                        size="small"
+                        class="image-sort"
+                        placeholder="排序"
                       />
                     </div>
                     <span class="image-item-actions">
                       <span
-                          class="image-item-preview"
-                          @click="handlePictureCardPreview(file)"
+                        class="image-item-preview"
+                        @click="handlePictureCardPreview(file)"
                       >
                         <el-icon><View/></el-icon>
                       </span>
                       <span
-                          class="image-item-delete"
-                          @click="handleImageRemove(file)"
+                        class="image-item-delete"
+                        @click="handleImageRemove(file)"
                       >
                         <el-icon><Delete/></el-icon>
                       </span>
@@ -230,13 +230,13 @@
 
           <div v-else class="sku-list">
             <div
-                v-for="(sku, index) in skuList"
-                :key="sku.id || index"
-                class="sku-item"
+              v-for="(sku, skuIndex) in skuList"
+              :key="sku.id || skuIndex"
+              class="sku-item"
             >
               <div class="sku-header">
-                <h4>SKU {{ index + 1 }}</h4>
-                <el-button type="danger" size="small" @click="handleRemoveSku(index)">
+                <h4>SKU {{ skuIndex + 1 }}</h4>
+                <el-button type="danger" size="small" @click="handleRemoveSku(skuIndex)">
                   删除
                 </el-button>
               </div>
@@ -262,6 +262,39 @@
                 <el-form-item label="默认SKU">
                   <el-checkbox v-model="sku.isDefault">设为默认</el-checkbox>
                 </el-form-item>
+                <el-form-item label="规格选择">
+                  <div class="sku-spec-selection">
+                    <div v-if="specKeys.length === 0" class="no-specs">
+                      <el-alert
+                        title="请先在规格管理中添加规格"
+                        type="warning"
+                        :closable="false"
+                        show-icon
+                      />
+                    </div>
+                    <div v-else class="spec-selection-list">
+                      <div v-for="(specKey, keyIndex) in specKeys" :key="specKey.id || keyIndex" class="spec-selection-item">
+                        <span class="spec-key-label">{{ specKey.name }}:</span>
+                        <el-select
+                          :model-value="sku.specSelections?.[specKey.id]"
+                          @update:model-value="(value: string) => {
+                            if (!sku.specSelections) sku.specSelections = {}
+                            sku.specSelections[specKey.id] = value
+                            handleSkuSpecChange(sku, specKey.id, value)
+                          }"
+                          placeholder="请选择规格值"
+                        >
+                          <el-option
+                            v-for="specValue in specKey.values"
+                            :key="specValue.id"
+                            :label="specValue.value"
+                            :value="specValue.id"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </div>
+                </el-form-item>
               </el-form>
             </div>
           </div>
@@ -280,10 +313,10 @@
 
   <!-- 图片预览对话框 -->
   <el-image-viewer
-      v-if="previewVisible && previewImage"
-      v-model="previewVisible"
-      :url-list="[previewImage]"
-      @close="previewVisible = false"
+    v-if="previewVisible && previewImage"
+    v-model="previewVisible"
+    :url-list="[previewImage]"
+    @close="previewVisible = false"
   />
 </template>
 
@@ -326,7 +359,6 @@ const dialogVisible = computed({
 const formRef = ref()
 const activeTab = ref('basic')
 const categories = ref<Category[]>([])
-const disabled = ref(false)
 const previewImage = ref('')
 const previewVisible = ref(false)
 
@@ -354,7 +386,7 @@ const imageFileList = ref<any[]>([])
 const mainImgFileList = ref<any[]>([])
 
 // SKU列表
-const skuList = ref<(SKU & { specs?: any[] })[]>([])
+const skuList = ref<(SKU & { specs?: any[], skuSpecs?: any[], specSelections?: Record<string, string> })[]>([])
 
 // 规格键值
 const specKeys = ref<(SpecKey & { values: SpecValue[] })[]>([])
@@ -400,30 +432,31 @@ const dialogTitle = computed(() => {
 
 // 监听商品数据变化
 watch(
-    () => props.product,
-    (newProduct) => {
-      if (newProduct) {
-        // 编辑模式，填充表单数据
-        formData.value = {...newProduct}
-        // 加载主图
-        if (newProduct.mainImg) {
-          mainImgFileList.value = [{
-            url: newProduct.mainImg,
-            name: 'mainImg'
-          }]
-        }
-        // 加载商品附图
-        loadProductImages(newProduct.id!)
-        // 加载SKU
-        //   loadSkus(newProduct.id!)
-        // 加载规格
-        //   loadSpecs(newProduct.id!)
-      } else {
-        // 新增模式，重置表单数据
-        resetForm()
+  () => props.product,
+  (newProduct) => {
+    if (newProduct) {
+      // 编辑模式，填充表单数据
+      formData.value = {...newProduct}
+      // 加载主图
+      if (newProduct.mainImg) {
+        mainImgFileList.value = [{
+          url: newProduct.mainImg,
+          name: 'mainImg'
+        }]
       }
-    },
-    {immediate: true}
+      // 加载商品附图
+      loadProductImages(newProduct.id!)
+      // 加载SKU
+      loadSkus(newProduct.id!)
+      // 加载规格
+      loadSpecs(newProduct.id!)
+      
+    } else {
+      // 新增模式，重置表单数据
+      resetForm()
+    }
+  },
+  {immediate: true}
 )
 
 // 加载分类
@@ -437,7 +470,7 @@ const loadCategories = async () => {
 }
 
 // 加载商品附图
-const loadProductImages = async (productId: number) => {
+const loadProductImages = async (productId: string) => {
   try {
     const images = await productImageStore.fetchImagesByProductId(productId)
     imageFileList.value = images.map(img => ({
@@ -453,28 +486,39 @@ const loadProductImages = async (productId: number) => {
 }
 
 // 加载SKU
-const loadSkus = async (productId: number) => {
+const loadSkus = async (productId: string) => {
   try {
     const skus = await skuStore.fetchSkusByProductId(productId)
-    skuList.value = skus
+    // 处理 SKU 数据，添加 specSelections 字段用于渲染规格选择
+    const processedSkus = skus.map((sku: any) => {
+      // 创建 specSelections 对象，从 skuSpecs 中提取数据
+      const specSelections: Record<string, string> = {}
+      if (sku.skuSpecs) {
+        sku.skuSpecs.forEach((spec: any) => {
+          specSelections[spec.specKeyId] = spec.specValueId
+        })
+      }
+      
+      return {
+        ...sku,
+        specSelections
+      }
+    })
+    skuList.value = processedSkus
   } catch (error) {
     console.error('Failed to load skus:', error)
   }
 }
 
 // 加载规格
-const loadSpecs = async (productId: number) => {
+const loadSpecs = async (productId: string) => {
   try {
-    const specKeysData = await specStore.fetchSpecKeysByProductOrSkuId({pId: productId})
-    const specsWithValues = await Promise.all(
-        specKeysData.map(async (key) => {
-          const values = await specStore.fetchSpecValuesBySpecKeyId(key.id!)
-          return {
-            ...key,
-            values
-          }
-        })
-    )
+    const specKeysData = await specStore.fetchSpecKeysByProductId(productId)
+    // 直接使用接口返回的完整数据结构，将 specValueList 重命名为 values
+    const specsWithValues = specKeysData.map((key) => ({
+      ...key,
+      values: key.specValueList || []
+    }))
     specKeys.value = specsWithValues
   } catch (error) {
     console.error('Failed to load specs:', error)
@@ -536,9 +580,10 @@ const handlePictureCardPreview = (file: any) => {
 
 // 处理添加SKU
 const handleAddSku = () => {
+  // 添加新SKU
   skuList.value.push({
     id: undefined,
-    productId: formData.value.id || 0,
+    productId: formData.value.id || '',
     skuCode: '',
     name: '',
     price: 0,
@@ -546,7 +591,9 @@ const handleAddSku = () => {
     stock: 0,
     warningStock: 0,
     isDefault: skuList.value.length === 0,
-    delFlag: false
+    delFlag: false,
+    skuSpecs: [],
+    specSelections: {}
   })
 }
 
@@ -555,6 +602,33 @@ const handleRemoveSku = (index: number) => {
   skuList.value.splice(index, 1)
   if (skuList.value.length > 0 && !skuList.value.some(sku => sku.isDefault)) {
     skuList.value[0].isDefault = true
+  }
+}
+
+// 处理SKU规格变化
+const handleSkuSpecChange = (sku: any, specKeyId: string, specValueId: string) => {
+  // 确保 sku.specSelections 存在
+  if (!sku.specSelections) {
+    sku.specSelections = {}
+  }
+  
+  // 更新选择状态
+  sku.specSelections[specKeyId] = specValueId
+  
+  // 同时更新 sku.skuSpecs
+  if (!sku.skuSpecs) {
+    sku.skuSpecs = []
+  }
+  const existingIndex = sku.skuSpecs.findIndex((spec: any) => spec.specKeyId === specKeyId)
+  if (existingIndex >= 0) {
+    // 更新现有规格
+    sku.skuSpecs[existingIndex].specValueId = specValueId
+  } else {
+    // 添加新规格
+    sku.skuSpecs.push({
+      specKeyId,
+      specValueId
+    })
   }
 }
 
@@ -587,7 +661,7 @@ const handleAddSpecValue = (keyIndex: number) => {
   const tempId = generateTempId()
   specKeys.value[keyIndex].values.push({
     id: tempId,
-    specKeyId: specKeys.value[keyIndex].id || 0,
+    specKeyId: specKeys.value[keyIndex].id || '',
     value: '',
     image: '',
     sortOrder: specKeys.value[keyIndex].values.length + 1,
@@ -605,7 +679,8 @@ const handleSubmit = async () => {
   try {
     await formRef.value?.validate()
 
-    let productId: number
+    let productId: string
+    // 在后续逻辑中已使用 productId，无需额外读取
 
     if (formData.value.id) {
       // 编辑模式 - 使用FormData处理文件上传
@@ -613,7 +688,7 @@ const handleSubmit = async () => {
       productFormData.append('id', formData.value.id.toString())
       productFormData.append('name', formData.value.name || '')
       productFormData.append('description', formData.value.description || '')
-      productFormData.append('categoryId', (formData.value.categoryId || 0).toString())
+      productFormData.append('categoryId', (formData.value.categoryId || '').toString())
       productFormData.append('status', formData.value.status.toString())
 
       // 添加主图文件
@@ -655,6 +730,32 @@ const handleSubmit = async () => {
             productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].value`, specValue.value || '')
             productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].image`, specValue.image || '')
             productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].sortOrder`, (specValue.sortOrder || (valueIndex + 1)).toString())
+          })
+        }
+      })
+
+      // 添加SKU列表
+      skuList.value.forEach((sku, skuIndex) => {
+        if (sku.id) {
+          productFormData.append(`skus[${skuIndex}].id`, sku.id.toString())
+        }
+        productFormData.append(`skus[${skuIndex}].productId`, formData.value.id?.toString() || '')
+        productFormData.append(`skus[${skuIndex}].name`, sku.name || '')
+        productFormData.append(`skus[${skuIndex}].skuCode`, sku.skuCode || '')
+        productFormData.append(`skus[${skuIndex}].price`, sku.price?.toString() || '0')
+        productFormData.append(`skus[${skuIndex}].originalPrice`, sku.originalPrice?.toString() || '0')
+        productFormData.append(`skus[${skuIndex}].stock`, sku.stock?.toString() || '0')
+        productFormData.append(`skus[${skuIndex}].warningStock`, sku.warningStock?.toString() || '0')
+        productFormData.append(`skus[${skuIndex}].isDefault`, sku.isDefault?.toString() || 'false')
+
+        // 添加SKU规格关系
+        if (sku.skuSpecs && sku.skuSpecs.length > 0) {
+          sku.skuSpecs.forEach((skuSpec, specIndex) => {
+            if (skuSpec.id) {
+              productFormData.append(`skus[${skuIndex}].skuSpecs[${specIndex}].id`, skuSpec.id.toString())
+            }
+            productFormData.append(`skus[${skuIndex}].skuSpecs[${specIndex}].specKeyId`, skuSpec.specKeyId || '')
+            productFormData.append(`skus[${skuIndex}].skuSpecs[${specIndex}].specValueId`, skuSpec.specValueId || '')
           })
         }
       })
@@ -707,6 +808,32 @@ const handleSubmit = async () => {
         }
       })
 
+      // 添加SKU列表
+      skuList.value.forEach((sku, skuIndex) => {
+        if (sku.id) {
+          productFormData.append(`skus[${skuIndex}].id`, sku.id.toString())
+        }
+        productFormData.append(`skus[${skuIndex}].productId`, '')
+        productFormData.append(`skus[${skuIndex}].name`, sku.name || '')
+        productFormData.append(`skus[${skuIndex}].skuCode`, sku.skuCode || '')
+        productFormData.append(`skus[${skuIndex}].price`, sku.price?.toString() || '0')
+        productFormData.append(`skus[${skuIndex}].originalPrice`, sku.originalPrice?.toString() || '0')
+        productFormData.append(`skus[${skuIndex}].stock`, sku.stock?.toString() || '0')
+        productFormData.append(`skus[${skuIndex}].warningStock`, sku.warningStock?.toString() || '0')
+        productFormData.append(`skus[${skuIndex}].isDefault`, sku.isDefault?.toString() || 'false')
+
+        // 添加SKU规格关系
+        if (sku.skuSpecs && sku.skuSpecs.length > 0) {
+          sku.skuSpecs.forEach((skuSpec, specIndex) => {
+            if (skuSpec.id) {
+              productFormData.append(`skus[${skuIndex}].skuSpecs[${specIndex}].id`, skuSpec.id.toString())
+            }
+            productFormData.append(`skus[${skuIndex}].skuSpecs[${specIndex}].specKeyId`, skuSpec.specKeyId || '')
+            productFormData.append(`skus[${skuIndex}].skuSpecs[${specIndex}].specValueId`, skuSpec.specValueId || '')
+          })
+        }
+      })
+
       const newProduct = await productStore.createProduct(productFormData)
       productId = newProduct.id!
     }
@@ -714,11 +841,9 @@ const handleSubmit = async () => {
     // 保存商品附图 - 现在在新增时直接提交，编辑时需要单独处理
     // await saveProductImages(productId)
 
-    // 保存SKU
-    await saveSkus(productId)
-
-    // 保存规格
-    await saveSpecs()
+    // SKU和规格已经在提交商品时一起保存
+    // await saveSkus(productId)
+    // await saveSpecs()
 
     ElMessage.success('保存成功')
     emit('success')
@@ -727,69 +852,6 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error('Failed to save product:', error)
     ElMessage.error('保存失败')
-  }
-}
-
-// 保存SKU
-const saveSkus = async (productId: number) => {
-  try {
-    // 先删除旧的SKU
-    if (formData.value.id) {
-      const oldSkus = await skuStore.fetchSkusByProductId(productId)
-      for (const sku of oldSkus) {
-        await skuStore.deleteSku(sku.id!)
-      }
-    }
-
-    // 保存新的SKU
-    for (const sku of skuList.value) {
-      const skuData: Omit<SKU, 'id' | 'createTime' | 'updateTime' | 'delFlag'> = {
-        productId,
-        skuCode: sku.skuCode,
-        name: sku.name,
-        price: sku.price,
-        originalPrice: sku.originalPrice,
-        stock: sku.stock,
-        warningStock: sku.warningStock,
-        isDefault: sku.isDefault
-      }
-      await skuStore.createSku(skuData)
-    }
-  } catch (error) {
-    console.error('Failed to save skus:', error)
-    throw error
-  }
-}
-
-// 保存规格
-const saveSpecs = async () => {
-  try {
-    // 先删除旧的规格（实际项目中需要根据具体情况处理）
-
-    // 保存新的规格键
-    for (const specKey of specKeys.value) {
-      const keyData: Omit<SpecKey, 'id' | 'createTime' | 'updateTime' | 'delFlag'> = {
-        name: specKey.name,
-        categoryId: specKey.categoryId,
-        inputType: specKey.inputType,
-        sortOrder: specKey.sortOrder
-      }
-      const newKey = await specStore.createSpecKey(keyData)
-
-      // 保存规格值
-      for (const specValue of specKey.values) {
-        const valueData: Omit<SpecValue, 'id' | 'createTime' | 'updateTime' | 'delFlag'> = {
-          specKeyId: newKey.id!,
-          value: specValue.value,
-          image: specValue.image,
-          sortOrder: specValue.sortOrder
-        }
-        await specStore.createSpecValue(valueData)
-      }
-    }
-  } catch (error) {
-    console.error('Failed to save specs:', error)
-    throw error
   }
 }
 
@@ -912,6 +974,37 @@ onMounted(() => {
       margin: 0;
       font-size: 16px;
       font-weight: 600;
+    }
+  }
+}
+
+.sku-spec-selection {
+  margin-top: 10px;
+
+  .no-specs {
+    margin-bottom: 10px;
+  }
+
+  .spec-selection-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+
+    .spec-selection-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .spec-key-label {
+        font-weight: 500;
+        color: var(--el-text-color-primary);
+        min-width: 80px;
+      }
+
+      .el-select {
+        width: 150px;
+      }
     }
   }
 }

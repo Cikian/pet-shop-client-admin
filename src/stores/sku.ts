@@ -47,7 +47,7 @@ export const useSkuStore = defineStore('sku', () => {
   }
 
   // 根据商品ID获取SKU
-  const fetchSkusByProductId = async (productId: number): Promise<SKU[]> => {
+  const fetchSkusByProductId = async (productId: string): Promise<SKU[]> => {
     loading.value = true
     try {
       const skuList = await api.sku.getByProductId(productId) as SKU[]
@@ -62,7 +62,7 @@ export const useSkuStore = defineStore('sku', () => {
   }
 
   // 获取单个SKU
-  const fetchSku = async (id: number): Promise<SKU> => {
+  const fetchSku = async (id: string): Promise<SKU> => {
     loading.value = true
     try {
       const sku = await api.sku.get(id) as SKU
@@ -118,7 +118,7 @@ export const useSkuStore = defineStore('sku', () => {
   }
 
   // 删除SKU
-  const deleteSku = async (id: number): Promise<void> => {
+  const deleteSku = async (id: string): Promise<void> => {
     loading.value = true
     try {
       await api.sku.delete(id)

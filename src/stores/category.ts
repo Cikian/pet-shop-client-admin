@@ -61,7 +61,7 @@ export const useCategoryStore = defineStore('category', () => {
   }
 
   // 获取单个分类
-  const fetchCategory = async (id: number): Promise<Category> => {
+  const fetchCategory = async (id: string): Promise<Category> => {
     loading.value = true
     try {
       const category = await api.category.get(id) as Category
@@ -117,7 +117,7 @@ export const useCategoryStore = defineStore('category', () => {
   }
 
   // 删除分类
-  const deleteCategory = async (id: number): Promise<void> => {
+  const deleteCategory = async (id: string): Promise<void> => {
     loading.value = true
     try {
       await api.category.delete(id)
