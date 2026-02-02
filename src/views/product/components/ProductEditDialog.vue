@@ -65,72 +65,151 @@
               <el-radio :label="0">下架</el-radio>
             </el-radio-group>
           </el-form-item>
+
+          <!-- 商品附图 -->
+          <el-form-item label="商品附图" name="images">
+            <div class="product-images">
+              <!-- 自定义图片上传和管理 -->
+              <div class="custom-upload-container">
+                <!-- 上传按钮 -->
+                <el-upload
+                  class="upload-demo"
+                  action=""
+                  :auto-upload="false"
+                  :on-change="handleImageChange"
+                  :show-file-list="false"
+                  list-type="picture-card"
+                >
+                  <template #default>
+                    <el-icon><Plus /></el-icon>
+                    <div class="el-upload__text">上传图片</div>
+                  </template>
+                </el-upload>
+
+                <!-- 图片列表 -->
+                <div class="image-list">
+                  <div
+                    v-for="(file) in imageFileList"
+                    :key="file.id || file.uid"
+                    class="image-item"
+                  >
+                    <img :src="file.url" alt="商品图片" class="image-preview" />
+                    <div class="image-actions">
+                      <el-input
+                        v-model="file.description"
+                        placeholder="图片描述"
+                        size="small"
+                        class="image-description"
+                      />
+                      <el-input-number
+                        v-model="file.sortOrder"
+                        :min="1"
+                        :max="100"
+                        size="small"
+                        class="image-sort"
+                        placeholder="排序"
+                      />
+                    </div>
+                    <span class="image-item-actions">
+                      <span
+                        class="image-item-preview"
+                        @click="handlePictureCardPreview(file)"
+                      >
+                        <el-icon><View /></el-icon>
+                      </span>
+                      <span
+                        class="image-item-delete"
+                        @click="handleImageRemove(file)"
+                      >
+                        <el-icon><Delete /></el-icon>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </el-form-item>
         </el-form>
       </el-tab-pane>
 
-      <!-- 商品附图 -->
-      <el-tab-pane label="商品附图" name="images">
-        <div class="product-images">
-          <!-- 自定义图片上传和管理 -->
-          <div class="custom-upload-container">
-            <!-- 上传按钮 -->
-            <el-upload
-              class="upload-demo"
-              action=""
-              :auto-upload="false"
-              :on-change="handleImageChange"
-              :show-file-list="false"
-              list-type="picture-card"
-            >
-              <template #default>
-                <el-icon><Plus /></el-icon>
-                <div class="el-upload__text">上传图片</div>
-              </template>
-            </el-upload>
+            <!-- 规格管理 -->
+            <el-tab-pane label="规格管理" name="spec">
+                <div class="spec-management">
+                    <el-button type="primary" @click="handleAddSpecKey" style="margin-bottom: 20px">
+                        <el-icon>
+                            <Plus />
+                        </el-icon>
+                        新增规格类型
+                    </el-button>
 
-            <!-- 图片列表 -->
-            <div class="image-list">
-              <div
-                v-for="(file) in imageFileList"
-                :key="file.id || file.uid"
-                class="image-item"
-              >
-                <img :src="file.url" alt="商品图片" class="image-preview" />
-                <div class="image-actions">
-                  <el-input
-                    v-model="file.description"
-                    placeholder="图片描述"
-                    size="small"
-                    class="image-description"
-                  />
-                  <el-input-number
-                    v-model="file.sortOrder"
-                    :min="1"
-                    :max="100"
-                    size="small"
-                    class="image-sort"
-                    placeholder="排序"
-                  />
+                    <div v-if="specKeys.length === 0" class="empty-spec">
+                        <el-empty description="暂无规格类型，请点击新增规格类型按钮添加" />
+                    </div>
+
+                    <div v-else class="spec-list">
+                        <div v-for="(specKey, keyIndex) in specKeys" :key="specKey.id || keyIndex"
+                            class="spec-key-item">
+                            <div class="spec-key-header">
+                                <h4>{{ specKey.name ? specKey.name : '规格类型' + (keyIndex + 1) }}</h4>
+                                <el-button type="danger" size="small" @click="handleRemoveSpecKey(keyIndex)">
+                                    删除
+                                </el-button>
+                            </div>
+                            <el-form :model="specKey" label-width="100px">
+                                <el-form-item label="规格名称">
+                                    <el-input v-model="specKey.name" placeholder="请输入规格名称，如：颜色、尺寸" />
+                                </el-form-item>
+                                <el-form-item label="输入类型">
+                                    <el-select v-model="specKey.inputType" placeholder="请选择输入类型">
+                                        <el-option label="选择" value="select" />
+                                        <el-option label="文本" value="text" />
+                                        <el-option label="图片" value="image" />
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="排序">
+                                    <el-input-number v-model="specKey.sortOrder" :min="1" :max="100"
+                                        placeholder="请输入排序" />
+                                </el-form-item>
+                            </el-form>
+
+                            <!-- 规格值 -->
+                            <div class="spec-values">
+                                <h5>规格值</h5>
+                                <el-button type="success" size="small" @click="handleAddSpecValue(keyIndex)"
+                                    style="margin-bottom: 10px">
+                                    <el-icon>
+                                        <Plus />
+                                    </el-icon>
+                                    新增规格值
+                                </el-button>
+                                <div v-if="specKey.values && specKey.values.length === 0" class="empty-spec-value">
+                                    <el-empty description="暂无规格值，请点击新增规格值按钮添加" />
+                                </div>
+                                <div v-else class="spec-value-list">
+                                    <div v-for="(specValue, valueIndex) in specKey.values"
+                                        :key="specValue.id || valueIndex" class="spec-value-item">
+                                        <el-form :model="specValue" label-width="80px">
+                                            <el-form-item label="规格值">
+                                                <el-input v-model="specValue.value" placeholder="请输入规格值" />
+                                            </el-form-item>
+                                            <el-form-item label="排序">
+                                                <el-input-number v-model="specValue.sortOrder" :min="1" :max="100"
+                                                    placeholder="请输入排序" />
+                                            </el-form-item>
+                                            <el-button type="danger" size="small"
+                                                @click="handleRemoveSpecValue(keyIndex, valueIndex)">
+                                                删除
+                                            </el-button>
+                                        </el-form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <span class="image-item-actions">
-                  <span
-                    class="image-item-preview"
-                    @click="handlePictureCardPreview(file)"
-                  >
-                    <el-icon><View /></el-icon>
-                  </span>
-                  <span
-                    class="image-item-delete"
-                    @click="handleImageRemove(file)"
-                  >
-                    <el-icon><Delete /></el-icon>
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </el-tab-pane>
+            </el-tab-pane>
+
+    
 
       <!-- SKU管理 -->
       <el-tab-pane label="SKU管理" name="sku">
@@ -179,81 +258,6 @@
                   <el-checkbox v-model="sku.isDefault">设为默认</el-checkbox>
                 </el-form-item>
               </el-form>
-            </div>
-          </div>
-        </div>
-      </el-tab-pane>
-
-      <!-- 规格管理 -->
-      <el-tab-pane label="规格管理" name="spec">
-        <div class="spec-management">
-          <el-button type="primary" @click="handleAddSpecKey" style="margin-bottom: 20px">
-            <el-icon><Plus /></el-icon>
-            新增规格类型
-          </el-button>
-
-          <div v-if="specKeys.length === 0" class="empty-spec">
-            <el-empty description="暂无规格类型，请点击新增规格类型按钮添加" />
-          </div>
-
-          <div v-else class="spec-list">
-            <div
-              v-for="(specKey, keyIndex) in specKeys"
-              :key="specKey.id || keyIndex"
-              class="spec-key-item"
-            >
-              <div class="spec-key-header">
-                <h4>规格类型 {{ keyIndex + 1 }}</h4>
-                <el-button type="danger" size="small" @click="handleRemoveSpecKey(keyIndex)">
-                  删除
-                </el-button>
-              </div>
-              <el-form :model="specKey" label-width="100px">
-                <el-form-item label="规格名称">
-                  <el-input v-model="specKey.name" placeholder="请输入规格名称，如：颜色、尺寸" />
-                </el-form-item>
-                <el-form-item label="输入类型">
-                  <el-select v-model="specKey.inputType" placeholder="请选择输入类型">
-                    <el-option label="文本" value="text" />
-                    <el-option label="选择" value="select" />
-                    <el-option label="图片" value="image" />
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="排序">
-                  <el-input-number v-model="specKey.sortOrder" :min="1" :max="100" placeholder="请输入排序" />
-                </el-form-item>
-              </el-form>
-
-              <!-- 规格值 -->
-              <div class="spec-values">
-                <h5>规格值</h5>
-                <el-button type="success" size="small" @click="handleAddSpecValue(keyIndex)" style="margin-bottom: 10px">
-                  <el-icon><Plus /></el-icon>
-                  新增规格值
-                </el-button>
-                <div v-if="specKey.values && specKey.values.length === 0" class="empty-spec-value">
-                  <el-empty description="暂无规格值，请点击新增规格值按钮添加" />
-                </div>
-                <div v-else class="spec-value-list">
-                  <div
-                    v-for="(specValue, valueIndex) in specKey.values"
-                    :key="specValue.id || valueIndex"
-                    class="spec-value-item"
-                  >
-                    <el-form :model="specValue" label-width="80px">
-                      <el-form-item label="规格值">
-                        <el-input v-model="specValue.value" placeholder="请输入规格值" />
-                      </el-form-item>
-                      <el-form-item label="排序">
-                        <el-input-number v-model="specValue.sortOrder" :min="1" :max="100" placeholder="请输入排序" />
-                      </el-form-item>
-                      <el-button type="danger" size="small" @click="handleRemoveSpecValue(keyIndex, valueIndex)">
-                        删除
-                      </el-button>
-                    </el-form>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -317,8 +321,14 @@ const dialogVisible = computed({
 const formRef = ref()
 const activeTab = ref('basic')
 const categories = ref<Category[]>([])
+const disabled = ref(false)
 const previewImage = ref('')
 const previewVisible = ref(false)
+
+// 生成临时ID的辅助函数
+const generateTempId = () => {
+  return `temp_id:${Math.random().toString(36).substring(2, 8)}`
+}
 
 // 表单数据
 const formData = ref<Product>({
@@ -545,11 +555,13 @@ const handleRemoveSku = (index: number) => {
 
 // 处理添加规格键
 const handleAddSpecKey = () => {
+  // 为新添加的规格生成临时ID
+  const tempId = generateTempId()
   specKeys.value.push({
-    id: undefined,
+    id: tempId,
     name: '',
     categoryId: formData.value.categoryId,
-    inputType: 'text',
+    inputType: 'select',
     sortOrder: specKeys.value.length + 1,
     delFlag: false,
     values: []
@@ -566,8 +578,10 @@ const handleAddSpecValue = (keyIndex: number) => {
   if (!specKeys.value[keyIndex].values) {
     specKeys.value[keyIndex].values = []
   }
+  // 为新添加的规格值生成临时ID
+  const tempId = generateTempId()
   specKeys.value[keyIndex].values.push({
-    id: undefined,
+    id: tempId,
     specKeyId: specKeys.value[keyIndex].id || 0,
     value: '',
     image: '',
@@ -616,6 +630,30 @@ const handleSubmit = async () => {
         productFormData.append(`pictures[${index}].sortOrder`, (file.sortOrder || (index + 1)).toString())
       })
 
+      // 添加规格列表
+      specKeys.value.forEach((specKey, keyIndex) => {
+        if (specKey.id) {
+          productFormData.append(`specs[${keyIndex}].id`, specKey.id.toString())
+        }
+        productFormData.append(`specs[${keyIndex}].name`, specKey.name || '')
+        productFormData.append(`specs[${keyIndex}].productId`, formData.value.id?.toString() || '')
+        productFormData.append(`specs[${keyIndex}].inputType`, specKey.inputType || 'select')
+        productFormData.append(`specs[${keyIndex}].sortOrder`, (specKey.sortOrder || (keyIndex + 1)).toString())
+        
+        // 添加规格值列表
+        if (specKey.values && specKey.values.length > 0) {
+          specKey.values.forEach((specValue, valueIndex) => {
+            if (specValue.id) {
+              productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].id`, specValue.id.toString())
+            }
+            productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].specKeyId`, specKey.id?.toString() || '')
+            productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].value`, specValue.value || '')
+            productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].image`, specValue.image || '')
+            productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].sortOrder`, (specValue.sortOrder || (valueIndex + 1)).toString())
+          })
+        }
+      })
+
       await productStore.updateProduct(productFormData)
       productId = formData.value.id
     } else {
@@ -637,6 +675,30 @@ const handleSubmit = async () => {
           productFormData.append(`pictures[${index}].description`, file.description || '')
           productFormData.append(`pictures[${index}].img`, file.raw)
           productFormData.append(`pictures[${index}].sortOrder`, (file.sortOrder || (index + 1)).toString())
+        }
+      })
+
+      // 添加规格列表
+      specKeys.value.forEach((specKey, keyIndex) => {
+        if (specKey.id) {
+          productFormData.append(`specs[${keyIndex}].id`, specKey.id.toString())
+        }
+        productFormData.append(`specs[${keyIndex}].name`, specKey.name || '')
+        productFormData.append(`specs[${keyIndex}].productId`, '')
+        productFormData.append(`specs[${keyIndex}].inputType`, specKey.inputType || 'select')
+        productFormData.append(`specs[${keyIndex}].sortOrder`, (specKey.sortOrder || (keyIndex + 1)).toString())
+        
+        // 添加规格值列表
+        if (specKey.values && specKey.values.length > 0) {
+          specKey.values.forEach((specValue, valueIndex) => {
+            if (specValue.id) {
+              productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].id`, specValue.id.toString())
+            }
+            productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].specKeyId`, specKey.id?.toString() || '')
+            productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].value`, specValue.value || '')
+            productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].image`, specValue.image || '')
+            productFormData.append(`specs[${keyIndex}].specValueList[${valueIndex}].sortOrder`, (specValue.sortOrder || (valueIndex + 1)).toString())
+          })
         }
       })
 

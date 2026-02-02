@@ -73,7 +73,7 @@ export interface Category extends BaseEntity {
 export interface SpecKey extends BaseEntity {
   name: string
   categoryId?: string
-  inputType: 'text' | 'select' | 'image'
+  inputType: 'select' | 'text' | 'image'
   sortOrder: number
 }
 

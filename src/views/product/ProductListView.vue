@@ -77,7 +77,11 @@
           style="width: 100%"
           @sort-change="handleSortChange"
         >
-          <el-table-column prop="id" label="ID" width="80" sortable="custom" />
+          <el-table-column label="序号" width="80">
+            <template #default="scope">
+              {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+            </template>
+          </el-table-column>
           <el-table-column prop="name" label="商品名称" min-width="150" sortable="custom" />
           <el-table-column prop="description" label="商品描述" min-width="200" />
           <el-table-column label="分类" min-width="120" sortable="custom">
