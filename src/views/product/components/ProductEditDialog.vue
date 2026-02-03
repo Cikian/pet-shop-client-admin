@@ -19,65 +19,124 @@
           label-width="120px"
           class="product-form"
         >
-          <el-form-item label="商品名称" prop="name" class="form-item">
-            <el-input v-model="formData.name" placeholder="请输入商品名称" class="form-input"/>
-          </el-form-item>
-          <el-form-item label="商品描述" prop="description" class="form-item">
-            <el-input
-              v-model="formData.description"
-              type="textarea"
-              placeholder="请输入商品描述"
-              rows="4"
-              class="form-textarea"
-            />
-          </el-form-item>
-          <el-form-item label="商品分类" prop="categoryId" class="form-item">
-            <el-select v-model="formData.categoryId" placeholder="请选择商品分类" class="form-select">
-              <el-option
-                v-for="category in categories"
-                :key="category.id"
-                :label="category.name"
-                :value="category.id"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="主图" prop="mainImg" class="form-item">
-            <div class="main-img-section">
-              <el-upload
-                v-model:file-list="mainImgFileList"
-                class="main-img-upload"
-                action=""
-                :auto-upload="false"
-                :on-change="handleMainImgChange"
-                :on-remove="handleMainImgRemove"
-                list-type="picture-card"
-              >
-                <template #default>
-                  <div class="upload-btn">
-                    <el-icon class="upload-icon">
-                      <Plus/>
-                    </el-icon>
-                    <div class="upload-text">上传主图</div>
+          <!-- 双列布局 -->
+          <div class="form-row">
+            <el-form-item label="商品名称" prop="name" class="form-item half">
+              <el-input v-model="formData.name" placeholder="请输入商品名称" class="form-input"/>
+            </el-form-item>
+            <el-form-item label="商品分类" prop="categoryId" class="form-item half">
+              <el-select v-model="formData.categoryId" placeholder="请选择商品分类" class="form-select">
+                <el-option
+                  v-for="category in categories"
+                  :key="category.id"
+                  :label="category.name"
+                  :value="category.id"
+                />
+              </el-select>
+            </el-form-item>
+          </div>
+          
+          <div class="form-row">
+            <el-form-item label="主图" prop="mainImg" class="form-item half">
+              <div class="main-img-section">
+                <el-upload
+                  v-model:file-list="mainImgFileList"
+                  class="main-img-upload"
+                  action=""
+                  :auto-upload="false"
+                  :on-change="handleMainImgChange"
+                  :on-remove="handleMainImgRemove"
+                  list-type="picture-card"
+                >
+                  <template #default>
+                    <div class="upload-btn">
+                      <el-icon class="upload-icon">
+                        <Plus/>
+                      </el-icon>
+                      <div class="upload-text">上传主图</div>
+                    </div>
+                  </template>
+                  <template #file="{ file }">
+                    <div class="image-item main-image-item">
+                      <img :src="file.url" alt="主图" class="image-preview"/>
+                      <div class="image-overlay">
+                        <span class="overlay-text">主图</span>
+                      </div>
+                    </div>
+                  </template>
+                </el-upload>
+                <div class="upload-hint">* 建议上传尺寸为800x800像素的图片，支持JPG、PNG格式</div>
+              </div>
+            </el-form-item>
+            
+            <div class="form-item half">
+              <el-form-item label="商品状态" prop="status" class="form-item">
+                <el-radio-group v-model="formData.status" class="status-radio-group">
+                  <el-radio :label="1" class="status-radio">上架</el-radio>
+                  <el-radio :label="0" class="status-radio">下架</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              
+              <!-- 标签选择 -->
+              <el-form-item label="标签" class="form-item">
+                <div class="tags-section">
+                  <!-- 标签搜索 -->
+                  <div class="tag-search">
+                    <el-input
+                      v-model="tagSearchKeyword"
+                      placeholder="搜索标签"
+                      class="tag-search-input"
+                      @input="handleTagSearch"
+                      @focus="handleTagInputFocus"
+                      @blur="handleTagInputBlur"
+                    >
+                      <template #prefix>
+                        <el-icon class="el-input__icon"><Search/></el-icon>
+                      </template>
+                    </el-input>
                   </div>
-                </template>
-                <template #file="{ file }">
-                  <div class="image-item main-image-item">
-                    <img :src="file.url" alt="主图" class="image-preview"/>
-                    <div class="image-overlay">
-                      <span class="overlay-text">主图</span>
+                  
+                  <!-- 标签选择列表 -->
+                  <div v-if="showTagList" class="tag-select-list" @mousedown.stop>
+                    <div
+                      v-for="tag in tagList"
+                      :key="tag.id"
+                      :class="['tag-item', { 'tag-selected': isTagSelected(tag) }]"
+                      :style="{ cursor: isTagSelected(tag) ? 'not-allowed' : 'pointer' }"
+                      @click="!isTagSelected(tag) && handleTagSelect(tag)"
+                    >
+                      <span v-if="isTagSelected(tag)" class="tag-selected-icon">
+                        <el-icon><Check/></el-icon>
+                      </span>
+                      {{ tag.tagName }}
+                    </div>
+                    
+                    <!-- 新建标签选项 -->
+                    <div
+                      v-if="tagSearchKeyword && !tagList.some(t => t.tagName === tagSearchKeyword)"
+                      class="tag-item create-tag"
+                      @click="handleCreateTag"
+                    >
+                      <el-icon><Plus/></el-icon> 新建标签: {{ tagSearchKeyword }}
                     </div>
                   </div>
-                </template>
-              </el-upload>
-              <div class="upload-hint">* 建议上传尺寸为800x800像素的图片，支持JPG、PNG格式</div>
+                  
+                  <!-- 已选标签 -->
+                  <div class="selected-tags">
+                    <el-tag
+                      v-for="tag in selectedTags"
+                      :key="tag.id || tag.tempId"
+                      closable
+                      class="selected-tag"
+                      @close="handleTagRemove(tag)"
+                    >
+                      {{ tag.tagName || tag.name }}
+                    </el-tag>
+                  </div>
+                </div>
+              </el-form-item>
             </div>
-          </el-form-item>
-          <el-form-item label="商品状态" prop="status" class="form-item">
-            <el-radio-group v-model="formData.status" class="status-radio-group">
-              <el-radio :label="1" class="status-radio">上架</el-radio>
-              <el-radio :label="0" class="status-radio">下架</el-radio>
-            </el-radio-group>
-          </el-form-item>
+          </div>
 
           <!-- 商品附图 -->
           <el-form-item label="商品附图" name="images" class="form-item">
@@ -105,49 +164,57 @@
                 </el-upload>
 
                 <!-- 图片列表 -->
-                <div class="image-list">
-                  <div
-                    v-for="(file) in imageFileList"
-                    :key="file.id || file.uid"
-                    class="image-item"
-                  >
-                    <img :src="file.url" alt="商品图片" class="image-preview"/>
-                    <div class="image-actions">
-                      <el-input
-                        v-model="file.description"
-                        placeholder="图片描述"
-                        size="small"
-                        class="image-description"
-                      />
-                      <el-input-number
-                        v-model="file.sortOrder"
-                        :min="1"
-                        :max="100"
-                        size="small"
-                        class="image-sort"
-                        placeholder="排序"
-                      />
-                    </div>
-                    <div class="image-item-actions">
-                      <span
-                        class="image-item-preview"
-                        @click="handlePictureCardPreview(file)"
-                        title="预览"
-                      >
-                        <el-icon><View/></el-icon>
-                      </span>
-                      <span
-                        class="image-item-delete"
-                        @click="handleImageRemove(file)"
-                        title="删除"
-                      >
-                        <el-icon><Delete/></el-icon>
-                      </span>
-                    </div>
+                <div
+                  v-for="(file) in imageFileList"
+                  :key="file.id || file.uid"
+                  class="image-item"
+                >
+                  <img :src="file.url" alt="商品图片" class="image-preview"/>
+                  <div class="image-actions">
+                    <el-input
+                      v-model="file.description"
+                      placeholder="图片描述"
+                      size="small"
+                      class="image-description"
+                    />
+                    <el-input-number
+                      v-model="file.sortOrder"
+                      :min="1"
+                      :max="100"
+                      size="small"
+                      class="image-sort"
+                      placeholder="排序"
+                    />
+                  </div>
+                  <div class="image-item-actions">
+                    <span
+                      class="image-item-preview"
+                      @click="handlePictureCardPreview(file)"
+                      title="预览"
+                    >
+                      <el-icon><View/></el-icon>
+                    </span>
+                    <span
+                      class="image-item-delete"
+                      @click="handleImageRemove(file)"
+                      title="删除"
+                    >
+                      <el-icon><Delete/></el-icon>
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
+          </el-form-item>
+
+          <el-form-item label="商品描述" prop="description" class="form-item">
+            <el-input
+              v-model="formData.description"
+              type="textarea"
+              placeholder="请输入商品描述"
+              rows="4"
+              class="form-textarea"
+            />
           </el-form-item>
         </el-form>
       </el-tab-pane>
@@ -179,20 +246,24 @@
                 </el-button>
               </div>
               <el-form :model="specKey" label-width="100px" class="spec-form">
-                <el-form-item label="规格名称" class="form-item">
-                  <el-input v-model="specKey.name" placeholder="请输入规格名称，如：颜色、尺寸" class="form-input"/>
-                </el-form-item>
-                <el-form-item label="输入类型" class="form-item">
-                  <el-select v-model="specKey.inputType" placeholder="请选择输入类型" class="form-select">
-                    <el-option label="选择" value="select"/>
-                    <el-option label="文本" value="text"/>
-                    <el-option label="图片" value="image"/>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="排序" class="form-item">
-                  <el-input-number v-model="specKey.sortOrder" :min="1" :max="100"
-                                   placeholder="请输入排序" class="form-input-number"/>
-                </el-form-item>
+                <div class="form-row">
+                  <el-form-item label="规格名称" class="form-item half">
+                    <el-input v-model="specKey.name" placeholder="请输入规格名称，如：颜色、尺寸" class="form-input"/>
+                  </el-form-item>
+                  <el-form-item label="输入类型" class="form-item half">
+                    <el-select v-model="specKey.inputType" placeholder="请选择输入类型" class="form-select">
+                      <el-option label="选择" value="select"/>
+                      <el-option label="文本" value="text"/>
+                      <el-option label="图片" value="image"/>
+                    </el-select>
+                  </el-form-item>
+                </div>
+                <div class="form-row">
+                  <el-form-item label="排序" class="form-item half">
+                    <el-input-number v-model="specKey.sortOrder" :min="1" :max="100"
+                                     placeholder="请输入排序" class="form-input-number"/>
+                  </el-form-item>
+                </div>
               </el-form>
 
               <!-- 规格值 -->
@@ -212,20 +283,26 @@
                   <div v-for="(specValue, valueIndex) in specKey.values"
                        :key="specValue.id || valueIndex" class="spec-value-item">
                     <el-form :model="specValue" label-width="80px" class="spec-value-form">
-                      <el-form-item label="规格值" class="form-item">
-                        <el-input v-model="specValue.value" placeholder="请输入规格值" class="form-input"/>
-                      </el-form-item>
-                      <el-form-item label="排序" class="form-item">
-                        <el-input-number v-model="specValue.sortOrder" :min="1" :max="100"
-                                         placeholder="请输入排序" class="form-input-number"/>
-                      </el-form-item>
-                      <el-button type="danger" size="small"
-                                 @click="handleRemoveSpecValue(keyIndex, valueIndex)" class="delete-small-btn">
-                        <el-icon class="btn-icon">
-                          <Delete/>
-                        </el-icon>
-                        删除
-                      </el-button>
+                      <div class="form-row">
+                        <el-form-item label="规格值" class="form-item half">
+                          <el-input v-model="specValue.value" placeholder="请输入规格值" class="form-input"/>
+                        </el-form-item>
+                        <el-form-item label="排序" class="form-item half">
+                          <el-input-number v-model="specValue.sortOrder" :min="1" :max="100"
+                                           placeholder="请输入排序" class="form-input-number"/>
+                        </el-form-item>
+                      </div>
+                      <div class="form-row">
+                        <el-form-item class="form-item half">
+                          <el-button type="danger" size="small"
+                                     @click="handleRemoveSpecValue(keyIndex, valueIndex)" class="delete-small-btn">
+                            <el-icon class="btn-icon">
+                              <Delete/>
+                            </el-icon>
+                            删除
+                          </el-button>
+                        </el-form-item>
+                      </div>
                     </el-form>
                   </div>
                 </div>
@@ -354,13 +431,14 @@
 
 <script setup lang="ts">
 import {ref, computed, watch, onMounted} from 'vue'
-import {Plus, View, Delete} from '@element-plus/icons-vue'
+import {Plus, View, Delete, Search, Check} from '@element-plus/icons-vue'
 import {ElMessage, ElImageViewer} from 'element-plus'
 import {useProductStore} from '@/stores/product'
 import {useCategoryStore} from '@/stores/category'
 import {useProductImageStore} from '@/stores/productImage'
 import {useSkuStore} from '@/stores/sku'
 import {useSpecStore} from '@/stores/spec'
+import {api} from '@/api/busApi'
 import type {Product, Category, SKU, SpecKey, SpecValue} from '@/types'
 
 // Props
@@ -400,7 +478,7 @@ const generateTempId = () => {
 }
 
 // 表单数据
-const formData = ref<Product>({
+const formData = ref<Product & { tags?: string }>({
   id: undefined,
   name: '',
   description: '',
@@ -408,7 +486,8 @@ const formData = ref<Product>({
   status: 1,
   createTime: undefined,
   updateTime: undefined,
-  delFlag: false
+  delFlag: false,
+  tags: ''
 })
 
 // 商品附图
@@ -416,6 +495,12 @@ const imageFileList = ref<any[]>([])
 
 // 主图
 const mainImgFileList = ref<any[]>([])
+
+// 标签相关
+const tagSearchKeyword = ref('')
+const tagList = ref<any[]>([])
+const selectedTags = ref<any[]>([])
+const showTagList = ref(false)
 
 // SKU列表
 const skuList = ref<(SKU & { specs?: any[], skuSpecs?: any[], specSelections?: Record<string, string> })[]>([])
@@ -448,12 +533,18 @@ const resetForm = () => {
     status: 1,
     createTime: undefined,
     updateTime: undefined,
-    delFlag: false
+    delFlag: false,
+    tags: ''
   }
   imageFileList.value = []
   mainImgFileList.value = []
   skuList.value = []
   specKeys.value = []
+  // 重置标签相关数据
+  tagSearchKeyword.value = ''
+  tagList.value = []
+  selectedTags.value = []
+  showTagList.value = false
   formRef.value?.resetFields()
 }
 
@@ -482,6 +573,8 @@ watch(
       loadSkus(newProduct.id!)
       // 加载规格
       loadSpecs(newProduct.id!)
+      // 加载商品标签
+      loadProductTags(newProduct.id!)
       
     } else {
       // 新增模式，重置表单数据
@@ -555,6 +648,128 @@ const loadSpecs = async (productId: string) => {
   } catch (error) {
     console.error('Failed to load specs:', error)
   }
+}
+
+// 加载商品标签
+const loadProductTags = async (productId: string) => {
+  try {
+    const response = await api.tags.getByProductId(productId)
+    console.log('Load product tags response:', response)
+    // httpService已经自动解析了响应，返回的是result数组
+    if (Array.isArray(response)) {
+      // 清空已选标签
+      selectedTags.value = []
+      // 添加获取到的标签到已选列表
+      response.forEach((tag: any) => {
+        selectedTags.value.push(tag)
+      })
+      // 更新tags字段
+      updateTagsField()
+    }
+  } catch (error) {
+    console.error('Failed to load product tags:', error)
+  }
+}
+
+// 处理标签搜索
+const handleTagSearch = async () => {
+  if (tagSearchKeyword.value.trim()) {
+    try {
+      const response = await api.tags.getList(tagSearchKeyword.value)
+      console.log('Tag search response:', response)
+      // httpService已经自动解析了响应，返回的是result数组
+      if (Array.isArray(response)) {
+        tagList.value = response
+      } else {
+        tagList.value = []
+      }
+      // 确保显示标签列表
+      showTagList.value = true
+      console.log('Tag list:', tagList.value)
+      console.log('Show tag list:', showTagList.value)
+    } catch (error) {
+      console.error('Failed to search tags:', error)
+      tagList.value = []
+      showTagList.value = true
+    }
+  } else {
+    tagList.value = []
+    showTagList.value = false
+  }
+}
+
+// 处理标签选择
+const handleTagSelect = (tag: any) => {
+  // 检查标签是否已被选择
+  const isSelected = selectedTags.value.some(t => t.id === tag.id)
+  if (!isSelected) {
+    selectedTags.value.push(tag)
+    updateTagsField()
+  }
+  // 保持列表显示，不清空搜索关键词
+}
+
+// 处理标签移除
+const handleTagRemove = (tag: any) => {
+  const index = selectedTags.value.findIndex(t => t.id === tag.id || t.tempId === tag.tempId)
+  if (index !== -1) {
+    selectedTags.value.splice(index, 1)
+    updateTagsField()
+  }
+}
+
+// 处理创建标签
+const handleCreateTag = () => {
+  if (tagSearchKeyword.value.trim()) {
+    // 创建临时标签
+    const tempTag = {
+      tempId: `temp:${Date.now()}`,
+      name: tagSearchKeyword.value.trim(),
+      tagName: tagSearchKeyword.value.trim()
+    }
+    // 添加到已选标签
+    selectedTags.value.push(tempTag)
+    updateTagsField()
+    // 保持列表显示，不清空搜索关键词
+  }
+}
+
+// 检查标签是否已被选择
+const isTagSelected = (tag: any) => {
+  return selectedTags.value.some(t => t.id === tag.id)
+}
+
+// 处理标签输入框获取焦点
+const handleTagInputFocus = async () => {
+  // 如果有搜索关键词，执行搜索并显示列表
+  if (tagSearchKeyword.value.trim()) {
+    await handleTagSearch()
+  } else {
+    // 没有搜索关键词时不显示列表
+    showTagList.value = false
+  }
+}
+
+// 处理标签输入框失去焦点
+const handleTagInputBlur = () => {
+  // 延迟收起列表，以便点击标签时能触发选择事件
+  setTimeout(() => {
+    showTagList.value = false
+  }, 200)
+}
+
+// 更新tags字段
+const updateTagsField = () => {
+  const tagIds = selectedTags.value.map(tag => {
+    // 如果是临时标签，使用 temp:名称 格式
+    if (tag.tempId) {
+      return `temp:${tag.name}`
+    }
+    // 否则使用标签ID
+    return tag.id
+  })
+  // 以英文逗号分隔
+  formData.value.tags = tagIds.join(',')
 }
 
 // 处理图片变化
@@ -711,8 +926,7 @@ const handleSubmit = async () => {
   try {
     await formRef.value?.validate()
 
-    let productId: string
-    // 在后续逻辑中已使用 productId，无需额外读取
+    let productId: string = ''
 
     if (formData.value.id) {
       // 编辑模式 - 使用FormData处理文件上传
@@ -722,6 +936,8 @@ const handleSubmit = async () => {
       productFormData.append('description', formData.value.description || '')
       productFormData.append('categoryId', (formData.value.categoryId || '').toString())
       productFormData.append('status', formData.value.status.toString())
+      // 添加标签数据
+      productFormData.append('tags', formData.value.tags || '')
 
       // 添加主图文件
       if (mainImgFileList.value.length > 0 && mainImgFileList.value[0].raw) {
@@ -801,6 +1017,8 @@ const handleSubmit = async () => {
       productFormData.append('description', formData.value.description || '')
       productFormData.append('categoryId', (formData.value.categoryId || 0).toString())
       productFormData.append('status', formData.value.status.toString())
+      // 添加标签数据
+      productFormData.append('tags', formData.value.tags || '')
 
       // 添加主图文件
       if (mainImgFileList.value.length > 0 && mainImgFileList.value[0].raw) {
@@ -1026,14 +1244,40 @@ onMounted(() => {
   max-width: 200px;
 }
 
+// 响应式设计
+@media screen and (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .form-item.half {
+    width: 100%;
+  }
+  
+  .form-input,
+  .form-select {
+    max-width: 100%;
+  }
+  
+  .form-textarea {
+    max-width: 100%;
+  }
+  
+  .custom-upload-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 // 上传样式
 .upload-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 120px;
-  height: 120px;
+  width: 200px;
+  height: 200px;
   border: 2px dashed var(--border-color);
   border-radius: var(--border-radius);
   background-color: var(--light-gray);
@@ -1055,6 +1299,18 @@ onMounted(() => {
     font-size: 12px;
     color: var(--text-light);
   }
+}
+
+// 自定义上传容器样式
+.custom-upload-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.upload-demo {
+  margin-bottom: 0;
 }
 
 .main-img-section {
@@ -1092,6 +1348,84 @@ onMounted(() => {
       color: white;
       font-size: 14px;
       font-weight: 600;
+    }
+  }
+}
+
+// 标签样式
+.tags-section {
+  margin-top: 8px;
+  position: relative;
+  
+  .tag-search {
+    margin-bottom: 12px;
+    
+    .tag-search-input {
+      width: 100%;
+      max-width: 400px;
+    }
+  }
+  
+  .tag-select-list {
+    position: absolute;
+    top: 100%;
+    left: 120px;
+    width: 300px;
+    z-index: 1000;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: white;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    
+    .tag-item {
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border-radius: var(--border-radius);
+      background-color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      &:hover:not(.tag-selected) {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+      }
+      
+      &.create-tag {
+        
+        &:hover {
+          background-color: var(--success-color);
+        }
+      }
+      
+      &.tag-selected {
+        background-color: #ecf5ff;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        
+        .tag-selected-icon {
+          color: var(--primary-color);
+        }
+      }
+    }
+  }
+  
+  .selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    
+    .selected-tag {
+      margin-bottom: 8px;
+      cursor: pointer;
     }
   }
 }

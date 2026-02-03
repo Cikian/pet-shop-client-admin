@@ -56,6 +56,10 @@ export interface ApiInterface {
     create: (data: any) => Promise<any>,
     update: (data: any) => Promise<any>,
     delete: (id: string) => Promise<any>
+  },
+  tags: {
+    getList: (keyword: string) => Promise<any>,
+    getByProductId: (productId: string) => Promise<any>
   }
 }
 
@@ -128,6 +132,12 @@ export const api: ApiInterface = {
     create: (data: any) => httpService.postAction('/api/skuSpec', data),
     update: (data: any) => httpService.putAction('/api/skuSpec', data),
     delete: (id: string) => httpService.deleteAction(`/api/skuSpec/${id}`)
+  },
+  
+  // 标签相关API
+  tags: {
+    getList: (keyword: string) => httpService.getAction('/api/tags/get', { keyword }),
+    getByProductId: (productId: string) => httpService.getAction('/api/tags', { productId })
   }
 }
 
