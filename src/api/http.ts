@@ -32,8 +32,13 @@ const handleUnauthorized = (): void => {
     const authStore = useAuthStore()
     authStore.logout()
   })
-  // 重定向到登录页面
-  window.location.href = '/login'
+  // 检查当前是否已经在登录页面
+  if (window.location.pathname !== '/login') {
+    // 动态导入router以避免循环依赖
+    import('@/router').then(({ default: router }) => {
+      router.push('/login')
+    })
+  }
 }
 
 // 创建axios实例
