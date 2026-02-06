@@ -60,6 +60,10 @@ export interface ApiInterface {
   tags: {
     getList: (keyword: string) => Promise<any>,
     getByProductId: (productId: string) => Promise<any>
+  },
+  user: {
+    list: (params: any) => Promise<any>,
+    get: (id: string) => Promise<any>
   }
 }
 
@@ -138,6 +142,12 @@ export const api: ApiInterface = {
   tags: {
     getList: (keyword: string) => httpService.getAction('/api/tags/get', { keyword }),
     getByProductId: (productId: string) => httpService.getAction('/api/tags', { productId })
+  },
+  
+  // 用户相关API
+  user: {
+    list: (params: any) => httpService.getAction('/api/user/list', params),
+    get: (id: string) => httpService.getAction(`/api/user/${id}`)
   }
 }
 

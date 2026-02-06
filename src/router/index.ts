@@ -33,6 +33,12 @@ const routes: RouteRecordRaw[] = [
         name: 'ProductList',
         component: () => import('@/views/product/ProductListView.vue'),
         meta: { requiresAuth: true }
+      },
+      {
+        path: 'system/users',
+        name: 'UserList',
+        component: () => import('@/views/user/UserListView.vue'),
+        meta: { requiresAuth: true }
       }
       // 其他路由将在相应的页面组件创建后添加
       // {
