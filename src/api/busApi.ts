@@ -63,7 +63,32 @@ export interface ApiInterface {
   },
   user: {
     list: (params: any) => Promise<any>,
-    get: (id: string) => Promise<any>
+    get: (id: string) => Promise<any>,
+    getByRole: (params: any) => Promise<any>,
+    getWithoutRole: (params: any) => Promise<any>
+  },
+  role: {
+    // 角色管理
+    list: (params: any) => Promise<any>,
+    add: (data: any) => Promise<any>,
+    edit: (data: any) => Promise<any>,
+    delete: (id: string) => Promise<any>,
+    
+    // 权限管理
+    permissions: (params: any) => Promise<any>,
+    permissionsByRole: (params: any) => Promise<any>,
+    permissionsWithoutRole: (params: any) => Promise<any>,
+    addPermission: (data: any) => Promise<any>,
+    editPermission: (data: any) => Promise<any>,
+    deletePermission: (id: string) => Promise<any>,
+    
+    // 角色权限关联
+    addRolePermission: (data: any) => Promise<any>,
+    deleteRolePermission: (permissionId: string, roleId: string) => Promise<any>,
+    
+    // 用户角色关联
+    addUserRole: (params: any) => Promise<any>,
+    deleteUserRole: (userId: string, roleId: string) => Promise<any>
   }
 }
 
@@ -147,7 +172,34 @@ export const api: ApiInterface = {
   // 用户相关API
   user: {
     list: (params: any) => httpService.getAction('/api/user/list', params),
-    get: (id: string) => httpService.getAction(`/api/user/${id}`)
+    get: (id: string) => httpService.getAction(`/api/user/${id}`),
+    getByRole: (params: any) => httpService.getAction('/api/user/byRole', params),
+    getWithoutRole: (params: any) => httpService.getAction('/api/user/withoutRole', params)
+  },
+  
+  // 角色权限相关API
+  role: {
+    // 角色管理
+    list: (params: any) => httpService.getAction('/api/role/list', params),
+    add: (data: any) => httpService.postAction('/api/role/addRole', data),
+    edit: (data: any) => httpService.putAction('/api/role/editRole', data),
+    delete: (id: string) => httpService.deleteAction(`/api/role/deleteRole?id=${id}`),
+    
+    // 权限管理
+    permissions: (params: any) => httpService.getAction('/api/role/permissions', params),
+    permissionsByRole: (params: any) => httpService.getAction('/api/role/permissionsByRole', params),
+    permissionsWithoutRole: (params: any) => httpService.getAction('/api/role/permissionsWithoutRole', params),
+    addPermission: (data: any) => httpService.postAction('/api/role/addPermission', data),
+    editPermission: (data: any) => httpService.putAction('/api/role/editPermission', data),
+    deletePermission: (id: string) => httpService.deleteAction(`/api/role/deletePermission?id=${id}`),
+    
+    // 角色权限关联
+    addRolePermission: (params: any) => httpService.postAction('/api/role/addRolePermission?roleId=' + params.roleId + '&permissionId=' + params.permissionId),
+    deleteRolePermission: (permissionId: string, roleId: string) => httpService.deleteAction(`/api/role/deleteRolePermission?permissionId=${permissionId}&roleId=${roleId}`),
+    
+    // 用户角色关联
+    addUserRole: (params: any) => httpService.postAction('/api/role/addUserRole?userId=' + params.userId + '&roleId=' + params.roleId),
+    deleteUserRole: (userId: string, roleId: string) => httpService.deleteAction(`/api/role/deleteUserRole?userId=${userId}&roleId=${roleId}`)
   }
 }
 

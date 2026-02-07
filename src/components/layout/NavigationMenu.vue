@@ -13,21 +13,11 @@
       <template #title>仪表板</template>
     </el-menu-item>
     
-    <!-- 商品管理 -->
-    <el-sub-menu index="products">
-      <template #title>
-        <el-icon><Goods /></el-icon>
-        <span>商品管理</span>
-      </template>
-      <el-menu-item index="/products">
-        <el-icon><List /></el-icon>
-        <template #title>商品列表</template>
-      </el-menu-item>
-      <el-menu-item index="/products/add">
-        <el-icon><Plus /></el-icon>
-        <template #title>添加商品</template>
-      </el-menu-item>
-    </el-sub-menu>
+    <!-- 商品列表 -->
+    <el-menu-item index="/products">
+      <el-icon><List /></el-icon>
+      <template #title>商品管理</template>
+    </el-menu-item>
     
     <!-- 分类管理 -->
     <el-menu-item index="/categories">
@@ -35,27 +25,24 @@
       <template #title>分类管理</template>
     </el-menu-item>
     
-    <!-- 规格管理 -->
-    <el-menu-item index="/specs">
-      <el-icon><SetUp /></el-icon>
-      <template #title>规格管理</template>
+    <!-- 用户管理 -->
+    <el-menu-item index="/system/users">
+      <el-icon><User /></el-icon>
+      <template #title>用户管理</template>
     </el-menu-item>
     
-    <!-- 系统管理 -->
-    <el-sub-menu index="system">
-      <template #title>
-        <el-icon><Setting /></el-icon>
-        <span>系统管理</span>
-      </template>
-      <el-menu-item index="/system/users">
-        <el-icon><User /></el-icon>
-        <template #title>用户管理</template>
-      </el-menu-item>
-      <el-menu-item index="/system/settings">
-        <el-icon><Tools /></el-icon>
-        <template #title>系统设置</template>
-      </el-menu-item>
-    </el-sub-menu>
+    <!-- 角色管理 -->
+    <el-menu-item index="/roles">
+      <el-icon><UserFilled /></el-icon>
+      <template #title>角色管理</template>
+    </el-menu-item>
+    
+    <!-- 权限管理 -->
+    <el-menu-item index="/permissions">
+      <el-icon><Lock /></el-icon>
+      <template #title>权限管理</template>
+    </el-menu-item>
+    
   </el-menu>
 </template>
 
@@ -63,14 +50,12 @@
 import { useNavigation } from '@/composables/useNavigation'
 import { 
   Odometer, 
-  Goods, 
   Menu, 
-  SetUp,
-  Setting,
   User,
-  Tools,
+  UserFilled,
   List,
-  Plus
+  Lock,
+  Link
 } from '@element-plus/icons-vue'
 
 // Props

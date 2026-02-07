@@ -74,7 +74,7 @@ apiClient.interceptors.response.use(
     }
     
     // 解析Result对象，返回result属性中的数据
-    if (response.data && typeof response.data === 'object' && 'result' in response.data) {
+    if (response.data && typeof response.data === 'object' && 'result' in response.data && response.data.success) {
       return response.data.result
     }
     

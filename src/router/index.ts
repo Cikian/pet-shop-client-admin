@@ -39,6 +39,20 @@ const routes: RouteRecordRaw[] = [
         name: 'UserList',
         component: () => import('@/views/user/UserListView.vue'),
         meta: { requiresAuth: true }
+      },
+      // 角色管理
+      {
+        path: 'roles',
+        name: 'RoleList',
+        component: () => import('@/views/role-permission/RoleManagementView.vue'),
+        meta: { requiresAuth: true }
+      },
+      // 权限管理
+      {
+        path: 'permissions',
+        name: 'PermissionList',
+        component: () => import('@/views/role-permission/PermissionManagementView.vue'),
+        meta: { requiresAuth: true }
       }
       // 其他路由将在相应的页面组件创建后添加
       // {

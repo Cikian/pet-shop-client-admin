@@ -72,8 +72,8 @@
             <div class="form-item half">
               <el-form-item label="商品状态" prop="status" class="form-item">
                 <el-radio-group v-model="formData.status" class="status-radio-group">
-                  <el-radio :label="1" class="status-radio">上架</el-radio>
-                  <el-radio :label="0" class="status-radio">下架</el-radio>
+                  <el-radio :label="1" :value="1" class="status-radio">上架</el-radio>
+                  <el-radio :label="0" :value="0" class="status-radio">下架</el-radio>
                 </el-radio-group>
               </el-form-item>
               
@@ -212,7 +212,7 @@
               v-model="formData.description"
               type="textarea"
               placeholder="请输入商品描述"
-              rows="4"
+              :rows="4"
               class="form-textarea"
             />
           </el-form-item>
